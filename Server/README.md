@@ -1,3 +1,52 @@
+# FileWarp Server
+
+REST API backend for FileWarp operations with async task management and real-time updates.
+
+## Features
+
+- 🚀 **FastAPI** - Modern, fast web framework
+- 📦 **Async Task Management** - Long-running operations handled asynchronously
+- 🔄 **Real-time Updates** - WebSocket connections for progress monitoring
+- 🎯 **Multiple Operations** - Support for document, audio, video, image, PDF, OCR operations
+- 📊 **Progress Tracking** - Detailed progress with ETA calculation
+- 🔒 **File Validation** - Input validation and permission checking
+- 🐳 **Docker Support** - Easy deployment with Docker
+- 📝 **Comprehensive API** - Well-documented REST endpoints
+
+## Quick Start
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/filewarp/filewarp-backend.git
+cd filewarp-backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy environment template
+cp .env.example .env
+# Edit .env with your configuration
+
+# Run the server
+python -m app.main
+```
+
+## Docker
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or build manually
+docker build -t filewarp-backend .
+docker run -p 8000:8000 filewarp-backend
+```
+
 ## Architecture Components
 ### 1. Core Backend Structure
 ```bash
@@ -61,4 +110,35 @@ curl http://localhost:8000/api/v1/conversion/task/123e4567-e89b-12d3-a456-426614
 
 # WebSocket connection for real-time updates
 # ws://localhost:8000/api/v1/conversion/task/123e4567-e89b-12d3-a456-426614174000/ws
+```
+
+### Python usage
+```python
+import requests
+
+# Submit a conversion task
+response = requests.post(
+    "http://localhost:8000/api/v1/conversion/submit",
+    json={
+        "operation": "convert-doc",
+        "input_paths": ["/path/to/document.docx"],
+        "target_format": "pdf"
+    }
+)
+task_id = response.json()["task_id"]
+
+# Check task status
+status = requests.get(
+    f"http://localhost:8000/api/v1/tasks/{task_id}/status"
+)
+print(status.json())
+```
+### WebSocket for Real-time Updates
+```js
+const ws = new WebSocket("ws://localhost:8000/api/v1/ws/task/{task_id}");
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log(`Progress: ${data.progress}% - ${data.message}`);
+};
 ```
